@@ -140,7 +140,7 @@ class ObjectRecognition:
                         H_pos = "bottom"                
                     Detected_objects.append(self.Objects[Objescts_IDs[i]])    
                     texts.append("A " + Obj + " Found Away From You Approximatilly {:.1f}".format(DIS) + " Meters" + " In The " + H_pos + " " + W_pos)
-        return texts, Detected_objects
+        return texts, Detected_objects, Frame
 
     ############################
     """ Recognition PipeLine """
@@ -150,5 +150,26 @@ class ObjectRecognition:
             (self.H,self.W) = Frame.shape[:2]
         Output_Layers = self.Frame_Processing(Frame)
         (Boxes, Confidences, Objescts_IDs, Centers) = self.Detections_Attributes(Output_Layers)
-        Texts, Objs = self.Non_Max_Suppresion(Frame, Boxes, Confidences,Objescts_IDs, Centers)
-        return Texts, Objs
+        Texts, Objs, Frame_ = self.Non_Max_Suppresion(Frame, Boxes, Confidences,Objescts_IDs, Centers)
+        return Texts, Objs, Frame_
+    
+    
+#######################
+""" Main Function """
+######################
+if __name__ == '__main__':
+    Cap = cv2.VideoCapture(0)
+    while Cap.isOpened():
+        Bool, Frame = Cap.read()
+        if not Bool:
+            break
+        else:
+            Class = ObjectRecognition()
+            Texts, Objs, Frame_= Class.Recognizer_(Frame)
+            cv2.imshow("Real-Time Recording", Frame_)
+        CV = cv2.waitKey(1)
+        if CV == 27:
+            break
+    print("[INFO] cleaning up...")  
+    Cap.release()           ## After Ending, Release The Camera Resourse Usage
+    cv2.destroyAllWindows() ## And Destroy All Opened Windows    
